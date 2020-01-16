@@ -18,4 +18,4 @@ jobs:
     - name: Pylint
       run: |
         pip install pylint
-        pylint --rcfile=.pylintrc **/*.py
+        find . -type f -name "*.py" | xargs pylint --rcfile=.pylintrc 
