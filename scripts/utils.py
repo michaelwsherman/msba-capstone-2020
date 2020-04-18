@@ -24,10 +24,10 @@ def parse_arguments(argv):
   """Parses command line arguments common across scripts."""
   parser = argparse.ArgumentParser(description='Configuration options..')
   parser.add_argument(
-    '--config_path',
-    required=True,
-    type=str,
-    help='YAML file with project configuration.')
+      '--config_path',
+      required=True,
+      type=str,
+      help='YAML file with project configuration.')
   args, _ = parser.parse_known_args(args=argv[1:])
   return args
 
@@ -46,7 +46,7 @@ def merge_dicts(a: Dict[str, Any], b: Dict[str, Any]) -> Dict[str, Any]:
   if duplicate_keys:
     duplicate_keys_string = ", ".join(duplicate_keys)
     raise KeyError("The following keys are non-unique: {}".format(
-      duplicate_keys_string))
+        duplicate_keys_string))
 
   return {**a, **b}
 
@@ -162,7 +162,7 @@ def create_table(
 
   if partition_field:
     job_config.time_partitioning = bigquery.TimePartitioning(
-      field=partition_field)
+        field=partition_field)
 
   query_job = client.query(query, job_config=job_config)
 
