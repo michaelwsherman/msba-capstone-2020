@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Runs SQL queries to create Bigquery tables for training and prediction."""
+"""Runs SQL queries to create BigQuery tables for training and prediction."""
 
 import logging
 import os
@@ -21,99 +21,75 @@ import utils
 
 logging.basicConfig(level=logging.DEBUG)
 
-
 def main():
-    """Runs queries to create training and prediction tables from clean data."""
+  """Runs queries to create training and prediction tables from clean data."""
 
-    # Load config shared by all steps of feature creation.
-    config_path = utils.parse_arguments(sys.argv).config_path
-    config = utils.read_config(config_path)
-    # Project-wide config.
-    global_config = config['global']
-    # Path to SQL files.
-    queries_path = config['file_paths']['queries']
-    # SQL files for different pipeline steps.
-    query_files = config['query_files']
-    # Parameters unique to individual pipeline steps.
-    query_params = config['query_params']
+  # Load config shared by all steps of feature creation.
+  config_path = utils.parse_arguments(sys.argv).config_path
+  config = utils.read_config(config_path)
+  # Project-wide config.
+  global_config = config['global']
+  # Path to SQL files.
+  queries_path = config['file_paths']['queries']
+  # SQL files for different pipeline steps.
+  query_files = config['query_files']
+  # Parameters unique to individual pipeline steps.
+  query_params = config['query_params']
 
   # Create the dataset to hold data for the pipeline run.
-    utils.create_dataset(
-        destination_project=global_config['destination_project_id'],
-        destination_dataset=global_config['destination_dataset']
-    )
+  utils.create_dataset(
+      destination_project=global_config['destination_project_id'],
+      destination_dataset=global_config['destination_dataset']
+  )
 
   # Query to remove nulls from the target column (company_response_to_consumer)
   # and from complaint_narrative column
-    remove_nulls_params = utils.merge_dicts(global_config,
+  remove_nulls_params = utils.merge_dicts(global_config,
                                           query_params['removing_nulls'])
 
+  utils.create_table(
+      query_path=os.path.join(queries_path, query_files['remove_nulls']),
+      query_params=remove_nulls_params,
+      destination_project=global_config['destination_project_id'],
+      destination_dataset=global_config['destination_dataset'],
+      destination_table=global_config['nulls_removed_table'],
+      partition_field=None
+  )
 
-    utils.create_table(
-        query_path=os.path.join(queries_path, query_files['remove_nulls']),
-        query_params=remove_nulls_params,
-        destination_project=global_config['destination_project_id'],
-        destination_dataset=global_config['destination_dataset'],
-        destination_table=global_config['nulls_removed_table'],
-        partition_field=None
-    )
-    
   # Query to cleanup the categories of issue, subissue, product, subproduct
-    category_clean_params = utils.merge_dicts(global_config,
-                                          query_params['category_cleanup'])
+  category_clean_params = utils.merge_dicts(global_config,
+                                            query_params['category_cleanup'])
 
-
-    utils.create_table(
-        query_path=os.path.join(queries_path, query_files['clean_categories']),
-        query_params=category_clean_params,
-        destination_project=global_config['destination_project_id'],
-        destination_dataset=global_config['destination_dataset'],
-        destination_table=global_config['cleaned_features_table'],
-        partition_field=None
-    )
+  utils.create_table(
+      query_path=os.path.join(queries_path, query_files['clean_categories']),
+      query_params=category_clean_params,
+      destination_project=global_config['destination_project_id'],
+      destination_dataset=global_config['destination_dataset'],
+      destination_table=global_config['cleaned_features_table'],
+      partition_field=None
+  )
 
   # Query to merge the cleaned features and the table with nulls removed
-    utils.create_table(
-        query_path=os.path.join(queries_path, query_files['combine_tables']),
-        query_params=global_config,
-        destination_project=global_config['destination_project_id'],
-        destination_dataset=global_config['destination_dataset'],
-        destination_table=global_config['clean_table'],
-        partition_field=None
-    )
-  
+  utils.create_table(
+      query_path=os.path.join(queries_path, query_files['combine_tables']),
+      query_params=global_config,
+      destination_project=global_config['destination_project_id'],
+      destination_dataset=global_config['destination_dataset'],
+      destination_table=global_config['clean_table'],
+      partition_field=None
+  )
 
+  features_split_params = utils.merge_dicts(global_config,
+                                            query_params['train_test_split'])
 
-    features_split_params = utils.merge_dicts(
-      global_config, query_params['train_test_split'])
-
-    utils.create_table(
-        query_path=os.path.join(queries_path, query_files['train_eval_split']),
-        query_params=features_split_params,
-        destination_project=global_config['destination_project_id'],
-        destination_dataset=global_config['destination_dataset'],
-        destination_table=global_config['features_train_table'],
-        partition_field=None
-    )
-
-#   forecasting_features_predict_params = utils.merge_dicts(
-#       global_config, query_params['forecasting_features_predict'])
-
-#   utils.create_table(
-#       query_path=os.path.join(
-#           queries_path, query_files['forecasting_features_split']),
-#       query_params=forecasting_features_predict_params,
-#       destination_project=global_config['project_id'],
-#       destination_dataset=global_config['forecasting_dataset'],
-#       destination_table=global_config['forecasting_features_predict_table'],
-#       partition_field=forecasting_features_predict_params['partition_field'],
-#   )
-
-  # To add more steps to the pipeline, you just need to copy some variation of
-  # the two commands above -- merge the global parameters and the query_params
-  # for the new query, and then run utils.create_table with the correct
-  # input.
-
+  utils.create_table(
+      query_path=os.path.join(queries_path, query_files['train_eval_split']),
+      query_params=features_split_params,
+      destination_project=global_config['destination_project_id'],
+      destination_dataset=global_config['destination_dataset'],
+      destination_table=global_config['features_train_table'],
+      partition_field=None
+  )
 
 if __name__ == '__main__':
-    main()
+  main()
