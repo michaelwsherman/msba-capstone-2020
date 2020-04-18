@@ -12,16 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-
-
-# TODO: Update everything and remove unnecesary config.
-
 # Configuration for running the complete pipeline including modeling and evaluation.
 
 # Absolute paths to non-code resources.
 file_paths:
   queries: "/home/jupyter/github_msba_capstone/msba-capstone-2020/queries"
-  automl_service_account_key: "/home/jupyter/.oauth_keys/automl_service_account_key.json"
 
 # Global config used by multiple pipelie steps. Also made available
 # as parameters to all SQL queries.
@@ -38,7 +33,6 @@ global:
   cleaned_features_table: "complaints_clean_categories"
   nulls_removed_table: "complaints_nulls_removed"
   clean_table: "complaints_clean"
-  # TODO: Add the NLP API table
   
   # Split features into training and prediction.
   features_train_table: "FeaturesTrain"
@@ -61,17 +55,14 @@ global:
   automl_compute_region: "us-central1"
 
   # Final model will be trained on test data, metrics are currently based
-  # on the predict split instead. AutoML Requires at least one row of test data,
+  # on the predict split instead. AutoML Requires at least one row of test data.
 
 # Files with templated queries, in file_paths.queries.
 query_files:
   remove_nulls: "remove_nulls.sql"
   clean_categories: "clean_categories.sql"
-  # TODO: Query for NLP API features 
   combine_tables: "combine_tables.sql"
   train_eval_split: "train_test_split.sql"
-  # Probably a calculation of some domain-specific eval?
-  # eval: "eval.sql"
 
 # Parameters specific to individual SQL pipeline steps.
 query_params:
@@ -167,10 +158,6 @@ model:
       type_code: "FLOAT64"
       nullable: FALSE
 
-#     "date_received":
-#       type_code: "TIMESTAMP"
-#       nullable: FALSE
-
     "company_public_response":
       type_code: "CATEGORY"
       nullable: TRUE
@@ -190,10 +177,6 @@ model:
     "submitted_via":
       type_code: "CATEGORY"
       nullable: TRUE
-
-#     "date_sent_to_company":
-#       type_code: "TIMESTAMP"
-#       nullable: FALSE
 
     "company_response_to_consumer":
       type_code: "CATEGORY"
