@@ -22,8 +22,6 @@ import logging
 import sys
 
 from google.cloud import automl_v1beta1 as automl
-import google.cloud.automl_v1beta1.proto.data_types_pb2 as data_types
-from google.oauth2 import service_account
 
 import utils
 
