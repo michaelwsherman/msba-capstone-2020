@@ -27,7 +27,7 @@ def parse_arguments(argv):
       required=True,
       type=str,
       help='YAML file with project configuration.')
-  args, _ = parser.parse_known_args(args=argv[1:])
+    args, _ = parser.parse_known_args(args=argv[1:])
 return args
 
 
