@@ -28,7 +28,7 @@ def parse_arguments(argv):
         type=str,
         help='YAML file with project configuration.')
     args, _ = parser.parse_known_args(args=argv[1:])
-  return args
+    return args
 
 
 def merge_dicts(a: Dict[str, Any], b: Dict[str, Any]) -> Dict[str, Any]:
