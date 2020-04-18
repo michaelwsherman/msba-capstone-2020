@@ -19,11 +19,10 @@ import yaml
 
 from google.cloud import bigquery
 
-
 def parse_arguments(argv):
     """Parses command line arguments common accross scripts."""
-    parser = argparse.ArgumentParser(description='Configuration options..')
-    parser.add_argument(
+  parser = argparse.ArgumentParser(description='Configuration options..')
+  parser.add_argument(
       '--config_path',
       required=True,
       type=str,
