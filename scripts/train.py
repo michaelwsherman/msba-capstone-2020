@@ -44,25 +44,25 @@ def main():
   model_config = config['model']
 
   client = automl.TablesClient(
-    project=global_config['destination_project_id'],
-    region=global_config['automl_compute_region']
+      project=global_config['destination_project_id'],
+      region=global_config['automl_compute_region']
   )
 
   bigquery_uri_train_table = 'bq://{}.{}.{}'.format(
-    global_config['destination_project_id'],
-    global_config['destination_dataset'],
-    global_config['features_train_table'],
+      global_config['destination_project_id'],
+      global_config['destination_dataset'],
+      global_config['features_train_table'],
   )
 
   dataset = client.create_dataset(
-    global_config['dataset_display_name']
+      global_config['dataset_display_name']
   )
 
   # Import operation is a Long Running Operation, .result() performs a
   # synchronous wait for the import to complete before progressing.
   import_data_operation = client.import_data(
-    dataset=dataset,
-    bigquery_input_uri=bigquery_uri_train_table,
+      dataset=dataset,
+      bigquery_input_uri=bigquery_uri_train_table,
   )
   import_data_operation.result()
 
@@ -70,34 +70,34 @@ def main():
   # Assumes fields are defined for every column.
   for column_spec_display_name, column in model_config['columns'].items():
     client.update_column_spec(
-      dataset=dataset,
-      column_spec_display_name=column_spec_display_name,
-      type_code=column['type_code'],
-      nullable=column['nullable']
+        dataset=dataset,
+        column_spec_display_name=column_spec_display_name,
+        type_code=column['type_code'],
+        nullable=column['nullable']
     )
 
   # Target column to predict, historical values will be used for prediction.
   client.set_target_column(
-    dataset=dataset,
-    column_spec_display_name=model_config['target_column']
+      dataset=dataset,
+      column_spec_display_name=model_config['target_column']
   )
 
   # Column to define a manual split of the dataset into "TRAIN",
   # "VALIDATE", and "TEST".
   client.set_test_train_column(
-    dataset=dataset,
-    column_spec_display_name=model_config['split_column']
+      dataset=dataset,
+      column_spec_display_name=model_config['split_column']
   )
 
   # Tunes and trains model, expect a ~ 1 hour overhead in addition to the time
   # allowed by the training budget. Stops tuning early if no further
   # improvements are made.
   create_model_response = client.create_model(
-    model_display_name=global_config['model_display_name'],
-    dataset=dataset,
-    train_budget_milli_node_hours=(
-        1000 * model_config['train_budget_hours']),
-    exclude_column_spec_names=model_config['exclude_columns']
+      model_display_name=global_config['model_display_name'],
+      dataset=dataset,
+      train_budget_milli_node_hours=(
+          1000 * model_config['train_budget_hours']),
+      exclude_column_spec_names=model_config['exclude_columns']
   )
   create_model_response.result()
 
